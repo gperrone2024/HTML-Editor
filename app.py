@@ -5,16 +5,16 @@ from streamlit.components.v1 import html
 st.set_page_config(page_title="WYSIWYG HTML Editor", layout="wide")
 st.title("WYSIWYG HTML Editor")
 
-# HTML, CSS, JS snippet for the editor
+# Clean HTML/CSS/JS snippet
 editor_html = '''
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  #toolbar { background: #f5f5f5; padding: 8px; border-bottom: 1px solid #ddd; display: flex; gap: 4px; }
-  #toolbar button, #toolbar select, #toolbar input[type=color] { padding: 4px; font-size: 14px; }
-  #container { display: flex; height: 80vh; }
-  #editor, #code { flex: 1; padding: 8px; border: 1px solid #ddd; font-family: monospace; font-size: 14px; overflow: auto; }
+  html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+  #toolbar { background: #fff; padding: 8px; border-bottom: 1px solid #ddd; display: flex; gap: 4px; }
+  #toolbar button, #toolbar select, #toolbar input[type=color] { padding: 4px; font-size: 14px; background: #fff; border: 1px solid #ccc; }
+  #container { display: flex; width: 100%; height: 80vh; }
+  #editor, #code { flex: 1; padding: 8px; border: 1px solid #ddd; font-family: monospace; font-size: 14px; overflow: auto; background: #fff; }
   #editor { outline: none; }
-  #tableControls { display: none; position: absolute; background: white; border: 1px solid #007acc; padding: 6px; z-index: 10; }
+  #tableControls { display: none; position: absolute; background: #fff; border: 1px solid #007acc; padding: 6px; z-index: 10; }
   #tableControls input { width: 100%; margin: 4px 0; }
   table.selected { outline: 2px solid #007acc; }
 </style>
@@ -29,8 +29,8 @@ editor_html = '''
     <option value="h2">H2</option>
     <option value="p">P</option>
   </select>
-  <button onclick="exec('insertUnorderedList')">•</button>
-  <button onclick="exec('insertOrderedList')">1.</button>
+  <button onclick="exec('insertUnorderedList')">• List</button>
+  <button onclick="exec('insertOrderedList')">1. List</button>
   <input type="color" onchange="exec('foreColor', this.value)">
   <button onclick="insertTable()">Table</button>
 </div>
@@ -74,7 +74,7 @@ editor_html = '''
     c.style.display = 'block';
     ['w','b','p','s'].forEach(id => {
       let attr = {w:'style.width', b:'border', p:'cellpadding', s:'cellspacing'}[id];
-      document.getElementById(id).value = selTable[attr] || selTable.getAttribute(attr) || '';
+      document.getElementById(id).value = selTable.style.width || selTable.getAttribute(attr) || '';
     });
   }
   function apply() {
@@ -87,11 +87,10 @@ editor_html = '''
   function hide() { document.getElementById('tableControls').style.display = 'none'; if(selTable) selTable.classList.remove('selected'); }
   document.addEventListener('selectionchange', ()=>{
     const sel = window.getSelection(); if (!sel.rangeCount) return;
-    const html = sel.toString() && sel.getRangeAt(0).cloneContents().textContent.trim();
-    if (!html) return;
+    const txt = sel.toString().trim(); if (!txt) return;
     const code = document.getElementById('code');
-    const idx = code.value.indexOf(html);
-    if (idx>=0) { code.focus(); code.setSelectionRange(idx, idx+html.length); }
+    const idx = code.value.indexOf(txt);
+    if (idx>=0) { code.focus(); code.setSelectionRange(idx, idx+txt.length); }
   });
   update();
 </script>
