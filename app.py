@@ -21,9 +21,7 @@ html_content = r"""
     .container { width: 100%; margin: 0 auto; padding: 20px; }
     .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
     .toolbar { background: #f5f5f5; padding: 10px; border: 1px solid #ddd; border-radius: 5px; display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
-    .toolbar button, .toolbar select, .toolbar input[type="color"] {
-      font-size: 12px;
-    }
+    .toolbar button, .toolbar select, .toolbar input[type="color"] { font-size: 12px; }
     .divider { width: 100%; height: 2px; background: #000; margin: 15px 0; }
     .editor-container { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; height: 600px; }
     .editor-panel { border: 1px solid #ddd; border-radius: 5px; display: flex; flex-direction: column; overflow: hidden; }
@@ -62,6 +60,7 @@ html_content = r"""
       <button onclick="pasteAsPlainText()">Paste Plain</button>
       <button onclick="execCmd('undo')">↶</button>
       <button onclick="execCmd('redo')">↷</button>
+      <button onclick="openFile()">Open</button>
     </div>
     <div class="divider"></div>
     <div class="editor-container">
@@ -80,10 +79,10 @@ html_content = r"""
         <textarea id="htmlEditor" class="html-editor"
                   oninput="updateVisual()"
                   onkeyup="updateVisual()"
-                  placeholder="Codice HTML pulito...">
-        </textarea>
+                  placeholder="Codice HTML pulito..."></textarea>
       </div>
     </div>
+    <input type="file" id="fileInput" accept=".html,.txt" style="display:none" onchange="loadFile(event)">
     <div class="table-controls" id="tableControls">
       <label>Width (px or %):<input type="text" id="tableWidth"></label>
       <label>Border (px):<input type="number" id="tableBorder" min="0"></label>
@@ -93,7 +92,6 @@ html_content = r"""
       <button onclick="closeTableControls()">Close</button>
     </div>
   </div>
-  <!-- js-beautify per formattare il codice html -->
   <script src="https://cdn.jsdelivr.net/npm/js-beautify@1.14.0/js/lib/beautify-html.js"></script>
   <script>
     let selectedTable = null;
@@ -107,8 +105,7 @@ html_content = r"""
     function updateHTML() {
       let raw = stripAttrs(document.getElementById('editor').innerHTML);
       let formatted = html_beautify(raw, { indent_size: 2, wrap_line_length: 80 });
-      const ta = document.getElementById('htmlEditor');
-      ta.value = formatted;
+      document.getElementById('htmlEditor').value = formatted;
     }
     function updateVisual() {
       document.getElementById('editor').innerHTML = document.getElementById('htmlEditor').value;
@@ -130,12 +127,25 @@ html_content = r"""
       let url=prompt('Image URL',''), alt=prompt('Alt','');
       if(url) execCmd('insertHTML', `<img src="${url}" alt="${alt}" style="max-width:100%;height:auto;">`);
     }
+    function openFile() {
+      document.getElementById('fileInput').click();
+    }
+    function loadFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const content = e.target.result;
+        document.getElementById('editor').innerHTML = content;
+        updateHTML();
+      };
+      reader.readAsText(file);
+    }
     function handleTableSelection(e) {
       document.querySelectorAll('table.selected').forEach(t=>t.classList.remove('selected'));
       let t = e.target.closest('table');
-      if(t) {
-        selectedTable = t; t.classList.add('selected'); showTableControls(e);
-      } else { selectedTable=null; closeTableControls(); }
+      if(t) { selectedTable = t; t.classList.add('selected'); showTableControls(e); }
+      else { selectedTable=null; closeTableControls(); }
     }
     function showTableControls(e) {
       const ctl = document.getElementById('tableControls');
@@ -156,10 +166,16 @@ html_content = r"""
     function closeTableControls() { document.getElementById('tableControls').style.display='none'; if(selectedTable) selectedTable.classList.remove('selected'); }
     function handlePaste(e){ setTimeout(updateHTML,10); }
     function pasteAsPlainText(){ navigator.clipboard.readText().then(t=>execCmd('insertText',t)).catch(_=>{ let t=prompt('Paste text'); execCmd('insertText',t); }); }
+    document.addEventListener('keydown', function(event) {
+      if ((event.ctrlKey||event.metaKey)&&!event.shiftKey) {
+        if (event.key==='b'||event.key==='i'||event.key==='u') {
+          event.preventDefault(); execCmd({b:'bold',i:'italic',u:'underline'}[event.key]); }
+      }
+    });
   </script>
 </body>
 </html>
 """
 
 # Inietta il componente HTML in Streamlit
-components.html(html_content, height=750, scrolling=True)
+components.html(html_content, height=800, scrolling=True)
