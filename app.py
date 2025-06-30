@@ -3,7 +3,7 @@ import streamlit.components.v1 as components
 
 # Configura la pagina in modalità wide
 st.set_page_config(
-    page_title="WYSIWYG HTML Editor",
+    page_title="HTML Editor",
     layout="wide",
 )
 
@@ -14,7 +14,7 @@ html_content = r"""
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WYSIWYG HTML Editor</title>
+  <title>HTML Editor</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: white; color: #333; }
