@@ -7,7 +7,7 @@ st.set_page_config(
     layout="wide",
 )
 
-# HTML/CSS/JS del WYSIWYG editor
+# HTML/CSS/JS del editor
 html_content = r"""
 <!DOCTYPE html>
 <html lang="en">
@@ -36,7 +36,7 @@ html_content = r"""
 <body>
   <div class="container">
     <div class="header">
-      <h1>WYSIWYG HTML Editor</h1>
+      <h1>HTML Editor</h1>
     </div>
     <div class="toolbar">
       <button onclick="execCmd('bold')">B</button>
